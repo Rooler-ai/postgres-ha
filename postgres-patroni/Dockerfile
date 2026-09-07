@@ -68,6 +68,12 @@ ARG PATRONI_VERSION=4.1.3
 # a human decides, never a nightly accident.
 ARG PGVECTOR_PKG_VERSION=0.8.*
 
+# Same pinning discipline as PGVECTOR_PKG_VERSION above: pinned at the MINOR so a daily
+# APT_REFRESH rebuild can't silently move the .so out from under an existing catalog.
+# "postgis-3" is the PGDG package's own suffix for the whole PostGIS 3.x series (not tied to
+# the 3.5 minor below) — matches docker/postgres's postgis/postgis:17-3.5 base in the app repo.
+ARG POSTGIS_PKG_VERSION=3.5.*
+
 ARG POSTGRES_VERSION
 # CI passes its content key here (see the build workflow's content gate):
 # the value only changes when the repo code, the upstream base, or Debian's
@@ -92,6 +98,8 @@ RUN echo "refresh key: ${APT_REFRESH}" \
     curl \
     pgbackrest \
     "postgresql-${POSTGRES_VERSION}-pgvector=${PGVECTOR_PKG_VERSION}" \
+    "postgresql-${POSTGRES_VERSION}-postgis-3=${POSTGIS_PKG_VERSION}" \
+    "postgresql-${POSTGRES_VERSION}-postgis-3-scripts=${POSTGIS_PKG_VERSION}" \
     && apt-mark unhold "postgresql-${POSTGRES_VERSION}" "postgresql-client-${POSTGRES_VERSION}" \
     && rm -rf /var/lib/apt/lists/*
 
