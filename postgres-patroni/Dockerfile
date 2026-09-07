@@ -71,8 +71,13 @@ ARG PGVECTOR_PKG_VERSION=0.8.*
 # Same pinning discipline as PGVECTOR_PKG_VERSION above: pinned at the MINOR so a daily
 # APT_REFRESH rebuild can't silently move the .so out from under an existing catalog.
 # "postgis-3" is the PGDG package's own suffix for the whole PostGIS 3.x series (not tied to
-# the 3.5 minor below) — matches docker/postgres's postgis/postgis:17-3.5 base in the app repo.
-ARG POSTGIS_PKG_VERSION=3.5.*
+# the 3.6 minor below). NOT the same minor as docker/postgres's postgis/postgis:17-3.5 base in
+# the app repo, deliberately: PGDG never published a 3.5 build against Postgres 18 — 3.6 is the
+# first PostGIS line with PG18 support, so this is the oldest minor actually installable here
+# (verified against apt.postgresql.org/.../dists/trixie-pgdg — only 3.6.2/3.6.3/3.6.4 exist for
+# postgresql-18-postgis-3). The SQL-level surface this app uses (spatial types/ST_ functions/
+# GiST) is stable across that gap; nothing here depends on matching dev's exact minor.
+ARG POSTGIS_PKG_VERSION=3.6.*
 
 ARG POSTGRES_VERSION
 # CI passes its content key here (see the build workflow's content gate):
